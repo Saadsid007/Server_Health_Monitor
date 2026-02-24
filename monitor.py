@@ -8,6 +8,7 @@ import base64
 import random
 import threading
 import concurrent.futures
+from datetime import datetime
 
 # --- TURBO STEALTH ENGINE ---
 try:
@@ -150,7 +151,8 @@ class SystemHealthMonitor:
         # Network Safety check inside thread
         with self.lock:
             if self.consecutive_errors > 10:
-                print(" [WARN] Network Congestion. Cooling down 5s...")
+                ts = datetime.now().strftime('%H:%M:%S.%f')[:-3]
+                print(f"[{ts}]  [WARN] Network Congestion. Cooling down 5s...")
                 time.sleep(5)
                 self.consecutive_errors = 0
 
@@ -160,31 +162,33 @@ class SystemHealthMonitor:
         resp = self.ping_endpoint(item)
         status = self.analyze_signal(resp)
         
+        ts_end = datetime.now().strftime('%H:%M:%S.%f')[:-3]
+
         # Thread-Safe append to ensure NO COUPONS ARE LOST
         with self.lock:
             if status == "OK":
-                print(f"   [OK] Verified: {masked}")
+                print(f"[{ts_end}]    [OK] Verified: {masked}")
                 self.reset_endpoint(item)
                 self.keep_data.append(item)
                 self.consecutive_errors = 0
             
             elif status == "ARCHIVED":
-                print(f"   [WARN] Archived: {masked}")
+                print(f"[{ts_end}]    [WARN] Archived: {masked}")
                 self.reset_endpoint(item)
                 self.keep_data.append(item)
                 self.consecutive_errors = 0
             
             elif status == "CORRUPT":
-                print(f"   [ERR] Corrupt Data: {masked} -> Purging")
+                print(f"[{ts_end}]    [ERR] Corrupt Data: {masked} -> Purging")
                 # self.corruption_detected = True # Uncommented this based on original code
                 self.consecutive_errors = 0
             
             elif status == "AUTH_FAIL":
-                print(" [CRITICAL] Session Token Expired.")
+                print(f"[{ts_end}]  [CRITICAL] Session Token Expired.")
                 os._exit(1) # Faster exit in multithreaded environment
             
             elif status == "BLOCK":
-                print(f"   [BLOCKED] Packet Rejected: {masked}")
+                print(f"[{ts_end}]    [BLOCKED] Packet Rejected: {masked}")
                 self.keep_data.append(item) # Kept so we don't lose the coupon
                 self.consecutive_errors += 1
             
@@ -201,18 +205,21 @@ class SystemHealthMonitor:
         while True:
             # Lifecycle Management
             if time.time() - self.start_time > self.MAX_DURATION:
-                print("\n [SYS_MAINTENANCE] Scheduled Restart.")
+                ts = datetime.now().strftime('%H:%M:%S.%f')[:-3]
+                print(f"\n[{ts}]  [SYS_MAINTENANCE] Scheduled Restart.")
                 break 
 
             # Fetch Batch
             current_data, filename = self.fetch_logs()
             
             if not current_data:
-                print(" [IDLE] No packets found. Standby 60s...")
+                ts = datetime.now().strftime('%H:%M:%S.%f')[:-3]
+                print(f"[{ts}]  [IDLE] No packets found. Standby 60s...")
                 time.sleep(60)
                 continue
 
-            print(f"\n [SCAN] Analyzing {len(current_data)} data packets (Speed: Extreme Parallel)...")
+            ts = datetime.now().strftime('%H:%M:%S.%f')[:-3]
+            print(f"\n[{ts}]  [SCAN] Analyzing {len(current_data)} data packets (Speed: Extreme Parallel)...")
             
             self.keep_data = [] 
             self.corruption_detected = False 
@@ -225,12 +232,14 @@ class SystemHealthMonitor:
 
             # Sync Updates
             if self.corruption_detected:
-                print("\n [DB_SYNC] Removing invalid entries...")
+                ts = datetime.now().strftime('%H:%M:%S.%f')[:-3]
+                print(f"\n[{ts}]  [DB_SYNC] Removing invalid entries...")
                 self.update_logs(self.keep_data, filename)
-                print(" [SYS] Optimization Complete. Restarting Scan...")
+                print(f"[{ts}]  [SYS] Optimization Complete. Restarting Scan...")
                 time.sleep(5) 
             else:
-                print(" [SYS] System Stable. Next Cycle...")
+                ts = datetime.now().strftime('%H:%M:%S.%f')[:-3]
+                print(f"[{ts}]  [SYS] System Stable. Next Cycle...")
                 time.sleep(1)
 
 if __name__ == "__main__":
