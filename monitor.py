@@ -211,11 +211,13 @@ class SystemHealthMonitor:
                 self.consecutive_errors += 1
             
             else: # NET_ERR
+                # Yahan explicitly print add kiya gaya hai
+                print(f"[{ts_end}]    [NET_ERR] Timeout (Retrying next cycle): {masked}")
                 self.keep_data.append(item) 
                 self.consecutive_errors += 1
 
     def start_monitoring(self):
-        print(f"[{get_ist()}]  [SYS_INIT] System Monitor v9.0 (Anti-Block Stealth Engine) Booting...")
+        print(f"[{get_ist()}]  [SYS_INIT] System Monitor v9.1 (Transparent Log Engine) Booting...")
         if not self.setup_session(): 
             print(f"[{get_ist()}]  [SYS_ERR] Connection failed.")
             return
@@ -242,7 +244,6 @@ class SystemHealthMonitor:
             self.global_pause = False
 
             # --- SMART MULTI-THREADING ---
-            # 15 workers provides exactly the 8-10 second clear time you requested without triggering the DDoS sensors.
             with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
                 executor.map(self._worker, current_data)
 
@@ -254,8 +255,8 @@ class SystemHealthMonitor:
                 time.sleep(5) 
             else:
                 # Slight wait between cycles ensures Akamai forgets our IP burst
-                print(f"[{get_ist()}]  [SYS] System Stable. Waiting 1s for Next Cycle...")
-                time.sleep(0.5)
+                print(f"[{get_ist()}]  [SYS] System Stable. Waiting 3s for Next Cycle...")
+                time.sleep(3)
 
 if __name__ == "__main__":
     monitor = SystemHealthMonitor()
