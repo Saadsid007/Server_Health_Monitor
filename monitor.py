@@ -214,8 +214,8 @@ class SystemHealthMonitor:
             
             if not current_data:
                 ts = datetime.now().strftime('%H:%M:%S.%f')[:-3]
-                print(f"[{ts}]  [IDLE] No packets found. Standby 60s...")
-                time.sleep(60)
+                print(f"[{ts}]  [IDLE] No packets found. Standby 30s...")
+                time.sleep(30)
                 continue
 
             ts = datetime.now().strftime('%H:%M:%S.%f')[:-3]
