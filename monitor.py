@@ -146,7 +146,7 @@ class SystemHealthMonitor:
 
     def _worker(self, item):
         """ Multi-threaded worker for checking coupons safely """
-        masked = item[:3] + "*****" 
+        masked = item[:8] + "***" 
         
         # Network Safety check inside thread
         with self.lock:
