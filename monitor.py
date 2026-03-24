@@ -140,7 +140,7 @@ class SystemHealthMonitor:
                 msg = error.get("message", "").lower()
                 if "cart" in msg and ("found" in msg or "empty" in msg): return "AUTH_FAIL"
                 if "redeem" in msg or "limit" in msg or "used" in msg: return "ARCHIVED"
-                if "not applicable" in msg or "not exist" in msg or "invalid" in msg: return "CORRUPT"
+                if "not applicable" in msg or "not exist" in msg: return "CORRUPT"
             return "CORRUPT"
         return "OK"
 
@@ -180,7 +180,7 @@ class SystemHealthMonitor:
             
             elif status == "CORRUPT":
                 print(f"[{ts_end}]    [ERR] Corrupt Data: {masked} -> Purging")
-                # self.corruption_detected = True # Uncommented this based on original code
+                self.corruption_detected = True # Uncommented this based on original code
                 self.consecutive_errors = 0
             
             elif status == "AUTH_FAIL":
